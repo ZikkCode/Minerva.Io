@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minerva.io — AI‑Powered Trading Analysis</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="script.js" defer></script>
+</head>
+
+<body data-theme="dark">
+    <audio id="successSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" type="audio/mpeg">
+    </audio>
+    <div class="bg-blobs"></div>
+    <div class="app-container">
+        <aside class="sidebar glass" id="sidebar" style="display:none;">
+            <h3>📜 History</h3>
+            <button class="small" id="newChatBtn">➕ New Chat</button>
+            <div id="historyList" style="flex:1;overflow-y:auto;"></div>
+            <button class="small" id="clearHistoryBtn"
+                style="margin-top:auto; border-color:rgba(224,85,85,0.4); color:#f5a0a0;">🗑️ Clear</button>
+        </aside>
+        <main class="main">
+            <!-- Chat Page -->
+            <div id="chatPage" class="page">
+                <nav class="chat-navbar glass">
+                    <div class="nav-logo" id="logoHome">🦉 Minerva<span style="font-weight:300;">.io</span></div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <span class="nav-badge tier" id="navTierBadge">Free</span>
+                        <span class="nav-badge credits" id="navCreditsBadge">⚡ <span
+                                id="navCreditsCount">46</span></span>
+                        <button class="small" id="toggleSidebarBtn">📜</button>
+                        <button class="small upgrade-btn" id="upgradeBtn">⭐ Upgrade</button>
+                        <button class="small" id="refillCreditsBtn">💵 Refill</button>
+                        <button class="small" id="settingsBtn">⚙️</button>
+                        <div class="profile-dropdown" style="position:relative;">
+                            <button class="profile-btn" id="profileBtn">👤</button>
+                            <div id="dropdownMenu" class="dropdown-menu glass"
+                                style="display:none;position:absolute;top:40px;right:0;min-width:160px;border-radius:14px;padding:8px 0;z-index:50;">
+                                <button id="menuSettingsBtn"
+                                    style="display:block;width:100%;border-radius:0;border:none;text-align:left;">⚙️
+                                    Settings</button>
+                                <button id="menuNewsBtn"
+                                    style="display:block;width:100%;border-radius:0;border:none;text-align:left;">📰
+                                    News</button>
+                                <button id="menuLogoutBtn"
+                                    style="display:block;width:100%;border-radius:0;border:none;text-align:left;color:#e05555;">🚪
+                                    Logout</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-panel" id="settingsPanel">
+                        <h3 style="color:#f0d9a0;margin-bottom:12px;">⚙️ Settings</h3>
+                        <div style="margin-bottom:10px;"><label style="font-size:0.8rem;">Theme</label><select
+                                id="themeToggle">
+                                <option value="dark">🌙 Dark</option>
+                                <option value="light">☀️ Light</option>
+                            </select></div>
+                        <div style="margin-bottom:10px;"><label style="font-size:0.8rem;">Language</label><select
+                                id="langSelect">
+                                <option value="en">🇬🇧 English</option>
+                                <option value="id">🇮🇩 Indonesia</option>
+                                <option value="fr">🇫🇷 Français</option>
+                                <option value="ko">🇰🇷 한국어</option>
+                            </select></div>
+                        <button class="small" id="settingsRefillCredits" style="width:100%;margin-top:8px;">💵 Refill
+                            Credits ($4 = 46 credits)</button>
+                    </div>
+                </nav>
+                <div class="chat-container" id="chatMessages">
+                    <div class="msg-wrapper">
+                        <div class="msg ai"><strong style="color:#f0d9a0;">🦉 Minerva AI</strong><br>Welcome! I use
+                            real‑time data and TradingView charts. Ask me: <strong>BTC</strong>, <strong>ETH</strong>,
+                            <strong>Gold</strong>, <strong>EURUSD</strong>.
+                        </div>
+                    </div>
+                    <div id="tvChartContainer" class="chart-container" style="display:none;"></div>
+                </div>
+                <div class="input-area">
+                    <textarea id="chatInput" placeholder="Ask Minerva AI... e.g., 'analyze bitcoin' or 'gold analysis'"
+                        rows="1"></textarea>
+                    <button class="send-btn" id="sendBtn">➤</button>
+                    <button id="upgradeSendBtn" class="upgrade-send-btn" style="display:none;">⭐ Upgrade</button>
+                </div>
+            </div>
+
+            <!-- Landing Page -->
+            <div id="landingPage" class="page active">
+                <div class="landing-container">
+                    <div class="wing left"></div>
+                    <div class="wing right"></div>
+                    <h1 class="hero-text">The market is noisy.<br>We make it clear.</h1>
+                    <p class="subtitle">AI‑powered analysis with real‑time market data, TradingView charts, and
+                        structured trade plans.</p>
+                    <div style="display:flex;gap:12px;z-index:2;position:relative;margin-bottom:40px;">
+                        <button class="gold" id="landingLoginBtn" style="font-size:1rem;padding:12px 28px;">Log
+                            In</button>
+                        <button class="gold" id="landingSignupBtn" style="font-size:1rem;padding:12px 28px;">Start Free
+                            Analysis</button>
+                    </div>
+                    <div class="promo-cards">
+                        <div class="promo-card glass">
+                            <h3>🆓 Free</h3>
+                            <div class="price">$0/mo</div>
+                            <div class="features">Basic analysis<br>S/R, RSI, MA<br>3 analyses/day</div>
+                        </div>
+                        <div class="promo-card glass">
+                            <h3>⭐ Pro</h3>
+                            <div class="price">$12.99/mo</div>
+                            <div class="features">Multi‑timeframe<br>Custom indicators<br>10 analyses/day</div>
+                        </div>
+                        <div class="promo-card glass">
+                            <h3>💼 Businessman</h3>
+                            <div class="price">$35.99/mo</div>
+                            <div class="features">Orderflow & liquidity<br>Volume analysis<br>21 analyses/day</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Page -->
+            <div id="loginPage" class="page">
+                <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
+                    <div class="glass" style="padding:30px;max-width:420px;width:100%;">
+                        <h2 id="authTitle">Welcome Back</h2>
+                        <p style="color:var(--text-secondary);text-align:center;margin-bottom:16px;">Log in to your
+                            Minerva account</p>
+                        <div class="form-group" id="usernameGroup" style="display:none;"><label>Username (min 5
+                                characters)</label><input type="text" id="authUsername" placeholder="trader_joe"
+                                style="width:100%;padding:12px;border-radius:12px;background:var(--input-bg);color:var(--text-primary);border:1px solid var(--glass-border);margin-bottom:12px;">
+                        </div>
+                        <div class="form-group"><label>Email</label><input type="email" id="authEmail"
+                                placeholder="you@example.com"
+                                style="width:100%;padding:12px;border-radius:12px;background:var(--input-bg);color:var(--text-primary);border:1px solid var(--glass-border);margin-bottom:12px;">
+                        </div>
+                        <div class="form-group"><label>Password</label><input type="password" id="authPassword"
+                                placeholder="8+ chars, 1 uppercase, 1 number"
+                                style="width:100%;padding:12px;border-radius:12px;background:var(--input-bg);color:var(--text-primary);border:1px solid var(--glass-border);margin-bottom:4px;">
+                        </div>
+                        <div class="auth-error" id="authError"
+                            style="color:#e05555;font-size:0.8rem;margin-bottom:8px;min-height:20px;"></div>
+                        <button class="gold" style="width:100%;margin-top:6px;padding:14px;" id="authSubmitBtn">Log
+                            In</button>
+                        <div
+                            style="display:flex;align-items:center;margin:15px 0;color:var(--text-muted);font-size:0.8rem;">
+                            <span style="flex:1;height:1px;background:var(--glass-border);"></span><span
+                                style="margin:0 10px;">OR</span><span
+                                style="flex:1;height:1px;background:var(--glass-border);"></span>
+                        </div>
+                        <div style="display:flex;gap:10px;"><button id="googleLoginBtn" style="flex:1;">🔵
+                                Google</button><button id="appleLoginBtn" style="flex:1;">🍎 Apple</button></div>
+                        <div style="text-align:center;margin-top:14px;font-size:0.85rem;color:var(--text-secondary);">
+                            <span id="switchText">Don't have an account?</span> <a id="switchLink"
+                                style="color:#f0d9a0;cursor:pointer;text-decoration:underline;">Sign Up</a>
+                        </div>
+                        <div id="googleSignInDiv" style="display:flex;justify-content:center;margin-top:10px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Page -->
+            <div id="newsPage" class="page">
+                <div style="padding:20px;max-width:800px;margin:0 auto;">
+                    <button class="small" id="newsBackBtn">← Back to Chat</button>
+                    <h2 style="color:#f0d9a0;margin:16px 0;">📰 Market News</h2>
+                    <div id="newsContainer"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="paymentModal"
+        style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:200;justify-content:center;align-items:center;">
+        <div class="glass" style="padding:20px;max-width:600px;width:90%;">
+            <h3 id="paymentModalTitle">⭐ Upgrade</h3>
+            <div id="paymentTierSelection" style="display:none;">
+                <div class="tier-cards-grid" id="upgradeTierCards"></div>
+            </div>
+            <div id="paymentMethodSelection" style="display:none;">
+                <p style="font-weight:600;color:#f0d9a0;">Select Payment Method</p>
+                <div class="payment-method-btns"
+                    style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0;">
+                    <button class="payment-method-btn" data-method="USDT_TRC20">₮ USDT (TRC20)</button>
+                    <button class="payment-method-btn" data-method="USDT_BEP20">₮ USDT (BEP20)</button>
+                    <button class="payment-method-btn" data-method="BTC">₿ BTC</button>
+                    <button class="payment-method-btn" data-method="ETH">Ξ ETH</button>
+                    <button class="payment-method-btn" data-method="SOL">◎ SOL</button>
+                </div>
+                <p style="font-size:0.8rem;color:var(--text-muted);">Auto-detecting payment... <span
+                        id="paymentTimer">5s</span></p>
+            </div>
+            <div id="paymentAddressDisplay" style="display:none;">
+                <p style="font-weight:600;color:#f0d9a0;">Send to this address</p>
+                <div class="address-display" id="addressDisplay"
+                    style="background:rgba(0,0,0,0.3);padding:10px;border-radius:10px;word-break:break-all;margin:10px 0;">
+                </div>
+                <button id="copyAddressBtn">📋 Copy</button>
+                <button class="gold" id="verifyPaymentBtn" style="margin-top:10px;width:100%;">✅ I Have Paid / Verify
+                    Payment</button>
+            </div>
+            <div id="paymentSuccess" style="display:none;text-align:center;">
+                <div style="font-size:2rem;">✅</div>
+                <p>Payment successful!</p>
+            </div>
+            <button id="closePaymentBtn" style="margin-top:10px;">Close</button>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div id="logoutModal"
+        style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:200;justify-content:center;align-items:center;">
+        <div class="glass" style="padding:20px;text-align:center;">
+            <h3>Logout?</h3><button id="cancelLogoutBtn">Cancel</button><button class="danger"
+                id="confirmLogoutBtn">Yes</button>
+        </div>
+    </div>
+</body>
+
+</html>
